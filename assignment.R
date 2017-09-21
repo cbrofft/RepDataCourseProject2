@@ -10,4 +10,5 @@ downloadFile <- "./repdata%2Fdata%2FStormData.csv.bz2"
 download.file(fileURL, downloadFile, method = "curl")
 stormdata <-read.csv("repdata%2Fdata%2FStormData.csv.bz2",header = TRUE, sep = ",")
 unlink(downloadFile)
-
+# Calculate deaths and injuries from storms
+stormdata$death_injuries<-stormdata$FATALITIES+stormdata$INJURIES
