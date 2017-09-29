@@ -22,8 +22,8 @@ library(plyr)
 ```
 
 
-## Staging the files and setting the directory.  
-##The file will be downloaded from the source and unzipped and saved as stormdata.csv
+### Staging the files and setting the directory.  
+###The file will be downloaded from the source and unzipped and saved as stormdata.csv
 ```{r}
 setwd("~/RepDataCourseProject2")
 fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
@@ -32,21 +32,23 @@ download.file(fileURL, downloadFile, method = "curl")
 stormdata <-read.csv("repdata%2Fdata%2FStormData.csv.bz2",header = TRUE, sep = ",")
 unlink(downloadFile)
 ```
-# Calculate deaths and injuries from storms
+### Calculate deaths and injuries from storms
 ```{r}
 stormdata$death_injuries<-stormdata$FATALITIES+stormdata$INJURIES
 ```
 
-#Convert from factor to character for property and crop damage
+###Convert from factor to character for property and crop damage
 ```{r}
 stormdata$PROPDMGEXP<-as.character(stormdata$PROPDMGEXP)
 stormdata$CROPDMGEXP<-as.character(stormdata$CROPDMGEXP)
 ```
-## Property and crop damage units and respective column numbers
+###### Property and crop damage units and respective column numbers
+```{r}
 propdamage<-grep("PROPDMGEXP",colnames(stormdata))
 cropdamage<-grep("CROPDMGEXP",colnames(stormdata))
-
-#Calculating the units of damage for crop and property
+```
+###Calculating the units of damage for crop and property
+```{r}
 stormdata[stormdata$PROPDMGEXP=="",propdamage]<-"0"
 stormdata[stormdata$PROPDMGEXP=="-",propdamage]<-"0"
 stormdata[stormdata$PROPDMGEXP=="?",propdamage]<-"0"
@@ -74,54 +76,72 @@ stormdata[stormdata$CROPDMGEXP=="K",cropdamage]<-"1000"
 stormdata[stormdata$CROPDMGEXP=="m",cropdamage]<-"1000000"
 stormdata[stormdata$CROPDMGEXP=="M",cropdamage]<-"1000000"
 stormdata[stormdata$CROPDMGEXP=="B",cropdamage]<-"1000000000"
-
-# Convert property and crop damages to numeric values now
+```
+### Convert property and crop damages to numeric values now
+```{r}
 stormdata$PROPDMGEXP<-as.numeric(stormdata$PROPDMGEXP)
 stormdata$CROPDMGEXP<-as.numeric(stormdata$CROPDMGEXP)
-
-#Calculate property and crop loss values
+```
+###Calculate property and crop loss values
+```{r}
 stormdata$propertyloss<-stormdata$PROPDMG*stormdata$PROPDMGEXP
 stormdata$croploss<-stormdata$CROPDMG*stormdata$CROPDMGEXP
-
-# Get the total economic loss
+```
+### Get the total economic loss
+```{r}
 stormdata$totaleconomicloss<-stormdata$propertyloss+stormdata$croploss
-
-# Get column numbers for human loss 
+```
+### Get column numbers for human loss 
+```{r}
 col1<-grep("EVTYPE",colnames(stormdata))
 col2<-grep("death_injuries",colnames(stormdata))
-
-# Create data set for human loss with omitting NA values
+```
+### Create data set for human loss with omitting NA values
+```{r}
 humanloss<-stormdata[,c(col1,col2)]
 humanloss<-humanloss[complete.cases(humanloss), ]
+```
 
-
-# Get ccolumn numbers for economic loss 
+### Get ccolumn numbers for economic loss 
+```{r}
 col1<-grep("EVTYPE",colnames(stormdata))
 col2<-grep("economicloss",colnames(stormdata))
-
-# Create economic loss with NA Values omitted
+```
+### Create economic loss with NA Values omitted
+```{r}
 economicloss<-stormdata[,c(col1,col2)]
 economicloss<-economicloss[complete.cases(economicloss), ]
-
-# Aggregation of  total human loss
+```
+### Aggregation of  total human loss
+```{r}
 humanlossclean<-aggregate(death_injuries~EVTYPE,humanloss,sum,na.rm=TRUE)
-# Sort human losses data in decreasing order of losses
+### Sort human losses data in decreasing order of losses
 humanlossclean<-humanlossclean[order(humanlossclean$death_injuries,decreasing = TRUE),]
-# Create data set of top 3 events
+```
+### Create data set of top 3 events
+```{r}
 humanlossfinal<-humanlossclean[1:3,]
-
-# Aggregation of  total economic losses
+```
+### Aggregation of  total economic losses
+```{r}
 ecolossclean<-aggregate(totaleconomicloss~EVTYPE,economicloss,sum,na.rm=TRUE)
-# Sort economic losses data in decreasing order of losses
+```
+### Sort economic losses data in decreasing order of losses
+```{r}
 ecolossclean<-ecolossclean[order(ecolossclean$totaleconomicloss,decreasing = TRUE),]
-# Create dataset for top 3 events
+```
+### Create dataset for top 3 events
+```{r}
 ecolossfinal<-ecolossclean[1:3,]
-
-# Create plot with top 3 servere types and human loss
+```
+### Create plot with top 3 servere types and human loss
+```{r}
 humanplot<-ggplot(data=humanlossfinal,aes(x=EVTYPE,y=death_injuries))
 humanplot+geom_bar(stat="identity", fill = "red", color="black")+xlab("Servere Event")+ylab("Injuries and Death")
-
-# Create plot with top 3 servere types and economicloss
+```
+### Create plot with top 3 servere types and economicloss
+```{r}
 economyplot<-ggplot(data=ecolossfinal,aes(x=EVTYPE,y=totaleconomicloss))
 economyplot+geom_bar(stat="identity", fill = "yellow", color="black")+xlab("Servere Event")+ylab("Economic Loss ($)")+
   scale_y_continuous(name="Economic Loss ($)", labels = scales::comma)
+```
