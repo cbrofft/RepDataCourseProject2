@@ -123,10 +123,12 @@ $(document).ready(function () {
 </div>
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+<div id="synopsis" class="section level1">
+<h1>Synopsis:</h1>
+<p>The following analysis was completed using the NOAA storm database from the years 1950 thru 2011. The goal of the analysis was to understand the major types of servere events and the toll taken by humanity and economy. The resulting processing creates 2 plots showing the top 3 servere event types for human impact and economic impact.</p>
+</div>
+<div id="setting-up-the-environment" class="section level1">
+<h1>Setting up the environment:</h1>
 <pre class="r"><code>library(knitr)
 library(ggplot2)
 library(dplyr)</code></pre>
@@ -164,6 +166,9 @@ download.file(fileURL, downloadFile, method = &quot;curl&quot;)
 stormdata &lt;-read.csv(&quot;repdata%2Fdata%2FStormData.csv.bz2&quot;,header = TRUE, sep = &quot;,&quot;)
 unlink(downloadFile)</code></pre>
 </div>
+</div>
+<div id="data-processing" class="section level1">
+<h1>Data Processing:</h1>
 <div id="calculate-deaths-and-injuries-from-storms" class="section level3">
 <h3>Calculate deaths and injuries from storms</h3>
 <pre class="r"><code>stormdata$death_injuries&lt;-stormdata$FATALITIES+stormdata$INJURIES</code></pre>
@@ -254,14 +259,19 @@ humanlossclean&lt;-humanlossclean[order(humanlossclean$death_injuries,decreasing
 </div>
 <div id="aggregation-of-total-economic-losses" class="section level3">
 <h3>Aggregation of total economic losses</h3>
-<pre class="r"><code>ecolossclean&lt;-aggregate(totaleconomicloss~EVTYPE,economicloss,sum,na.rm=TRUE)
-### Sort economic losses data in decreasing order of losses
-ecolossclean&lt;-ecolossclean[order(ecolossclean$totaleconomicloss,decreasing = TRUE),]</code></pre>
+<pre class="r"><code>ecolossclean&lt;-aggregate(totaleconomicloss~EVTYPE,economicloss,sum,na.rm=TRUE)</code></pre>
+</div>
+<div id="sort-economic-losses-data-in-decreasing-order-of-losses" class="section level3">
+<h3>Sort economic losses data in decreasing order of losses</h3>
+<pre class="r"><code>ecolossclean&lt;-ecolossclean[order(ecolossclean$totaleconomicloss,decreasing = TRUE),]</code></pre>
 </div>
 <div id="create-dataset-for-top-3-events" class="section level3">
 <h3>Create dataset for top 3 events</h3>
 <pre class="r"><code>ecolossfinal&lt;-ecolossclean[1:3,]</code></pre>
 </div>
+</div>
+<div id="results" class="section level1">
+<h1>Results:</h1>
 <div id="create-plot-with-top-3-servere-types-and-human-loss" class="section level3">
 <h3>Create plot with top 3 servere types and human loss</h3>
 <pre class="r"><code>humanplot&lt;-ggplot(data=humanlossfinal,aes(x=EVTYPE,y=death_injuries))

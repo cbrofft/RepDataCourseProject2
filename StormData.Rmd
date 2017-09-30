@@ -9,11 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Synopsis:
+The following analysis was completed using the NOAA storm database from the years 1950 thru 2011.  The goal of the analysis was to understand the major types of servere events and the toll taken by humanity and economy.  The resulting processing creates 2 plots showing the top 3 servere event types for human impact and economic impact.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Setting up the environment:
 ```{r}
 library(knitr)
 library(ggplot2)
@@ -32,6 +31,7 @@ download.file(fileURL, downloadFile, method = "curl")
 stormdata <-read.csv("repdata%2Fdata%2FStormData.csv.bz2",header = TRUE, sep = ",")
 unlink(downloadFile)
 ```
+# Data Processing:
 ### Calculate deaths and injuries from storms
 ```{r}
 stormdata$death_injuries<-stormdata$FATALITIES+stormdata$INJURIES
@@ -134,6 +134,7 @@ ecolossclean<-ecolossclean[order(ecolossclean$totaleconomicloss,decreasing = TRU
 ```{r}
 ecolossfinal<-ecolossclean[1:3,]
 ```
+# Results:
 ### Create plot with top 3 servere types and human loss
 ```{r}
 humanplot<-ggplot(data=humanlossfinal,aes(x=EVTYPE,y=death_injuries))
